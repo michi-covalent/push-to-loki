@@ -1,0 +1,23 @@
+name: Push to Loki
+
+on:
+  workflow_run:
+    workflows:
+      - Test Workflow
+    types:
+      - completed
+
+permissions:
+  actions: read
+
+jobs:
+  push-to-loki:
+    name: Push to Loki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push to Loki
+        uses: michi-covalent/push-to-loki@main
+        with:
+          endpoint: ${{ secrets.ENDPOINT }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}

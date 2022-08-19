@@ -1,0 +1,30 @@
+# action.yml
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  endpoint:
+    description: 'Loki endpoint (e.g. "https://logs-prod3.grafana.net/loki/api/v1/push")'
+    required: true
+  username:
+    description: 'Loki username'
+    required: true
+  password:
+    description: 'Loki password'
+    required: true
+  workflow_run_url:
+    description: 'Github Actions workflow run URL'
+    required: false
+    default: ${{ github.event.workflow_run.url }}
+  token:
+    description: "GitHub token to use for accessing workflow run and jobs URLs. Defaults to github.token."
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.endpoint }}
+    - ${{ inputs.username }}
+    - ${{ inputs.password }}
+    - ${{ inputs.workflow_run_url }}
+    - ${{ inputs.token }}
