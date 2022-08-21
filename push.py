@@ -3,6 +3,7 @@ import dateutil.parser
 import json
 import pprint
 import requests
+import os
 import sys
 
 LOKI_ENDPOINT = sys.argv[1]
@@ -23,8 +24,8 @@ def workflow_run_to_stream(workflow_run, branch):
                 datetime.timedelta.total_seconds(updated_at - run_started_at)
             ),
             "event": workflow_run["event"],
+            "filename": os.path.basename(workflow_run["path"]),
             "head_branch": workflow_run["head_branch"],
-            "path": workflow_run["path"],
             "repo": workflow_run["repository"]["full_name"],
             "stream": "github_workflow_runs",
             "url": workflow_run["html_url"],
@@ -49,12 +50,12 @@ def job_to_stream(workflow_run, job, branch):
                 datetime.timedelta.total_seconds(completed_at - started_at)
             ),
             "event": workflow_run["event"],
+            "filename": os.path.basename(workflow_run["path"]),
             "head_branch": workflow_run["head_branch"],
             "url": job["html_url"],
             "name": job["name"],
             "status": job["status"],
             "stream": "github_jobs",
-            "path": workflow_run["path"],
             "repo": workflow_run["repository"]["full_name"],
         },
         "values": [
@@ -74,12 +75,12 @@ def step_to_stream(workflow_run, job, step, branch):
                 datetime.timedelta.total_seconds(completed_at - started_at)
             ),
             "event": workflow_run["event"],
+            "filename": os.path.basename(workflow_run["path"]),
             "head_branch": workflow_run["head_branch"],
             "job_name": job["name"],
             "name": step["name"],
             "status": step["status"],
             "stream": "github_steps",
-            "path": workflow_run["path"],
             "repo": workflow_run["repository"]["full_name"],
         },
         "values": [
