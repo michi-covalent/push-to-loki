@@ -40,15 +40,17 @@ def workflow_run_to_stream(workflow_run, branch):
 
 
 def job_to_stream(workflow_run, job, branch):
-    started_at = dateutil.parser.isoparse(job["started_at"])
-    completed_at = dateutil.parser.isoparse(job["completed_at"])
+    duration = 0
+    completed_at = datetime.datetime.now(datetime.timezone.utc)
+    if "started_at" in job and "completed_at" in job:
+        started_at = dateutil.parser.isoparse(job["started_at"])
+        completed_at = dateutil.parser.isoparse(job["completed_at"])
+        duration = int(datetime.timedelta.total_seconds(completed_at - started_at))
     return {
         "stream": {
             "branch": branch,
             "conclusion": job["conclusion"],
-            "duration_seconds": int(
-                datetime.timedelta.total_seconds(completed_at - started_at)
-            ),
+            "duration_seconds": duration,
             "event": workflow_run["event"],
             "filename": os.path.basename(workflow_run["path"]),
             "head_branch": workflow_run["head_branch"],
@@ -65,15 +67,17 @@ def job_to_stream(workflow_run, job, branch):
 
 
 def step_to_stream(workflow_run, job, step, branch):
-    started_at = dateutil.parser.isoparse(step["started_at"])
-    completed_at = dateutil.parser.isoparse(step["completed_at"])
+    duration = 0
+    completed_at = datetime.datetime.now(datetime.timezone.utc)
+    if "started_at" in step and "completed_at" in step:
+        started_at = dateutil.parser.isoparse(step["started_at"])
+        completed_at = dateutil.parser.isoparse(step["completed_at"])
+        duration = int(datetime.timedelta.total_seconds(completed_at - started_at))
     return {
         "stream": {
             "branch": branch,
             "conclusion": step["conclusion"],
-            "duration_seconds": int(
-                datetime.timedelta.total_seconds(completed_at - started_at)
-            ),
+            "duration_seconds": duration,
             "event": workflow_run["event"],
             "filename": os.path.basename(workflow_run["path"]),
             "head_branch": workflow_run["head_branch"],
