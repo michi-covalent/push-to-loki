@@ -15,8 +15,15 @@ jobs:
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.7'
       - name: Run formatter
         uses: psf/black@stable
+      - name: Run unit tests
+        run: |
+          pip install -r requirements.txt
+          python -m unittest test_push.py
       - name: Step 1
         run: echo step 1
       - name: Step 2
