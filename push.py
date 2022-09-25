@@ -36,7 +36,12 @@ def workflow_run_to_stream(workflow_run, branch):
 def job_to_stream(workflow_run, job, branch):
     duration = 0
     completed_at = datetime.datetime.now(datetime.timezone.utc)
-    if "started_at" in job and "completed_at" in job:
+    if (
+        "started_at" in job
+        and job["started_at"] is not None
+        and "completed_at" in job
+        and job["completed_at"] is not None
+    ):
         started_at = dateutil.parser.isoparse(job["started_at"])
         completed_at = dateutil.parser.isoparse(job["completed_at"])
         duration = int(datetime.timedelta.total_seconds(completed_at - started_at))
@@ -63,7 +68,12 @@ def job_to_stream(workflow_run, job, branch):
 def step_to_stream(workflow_run, job, step, branch):
     duration = 0
     completed_at = datetime.datetime.now(datetime.timezone.utc)
-    if "started_at" in step and "completed_at" in step:
+    if (
+        "started_at" in step
+        and step["started_at"] is not None
+        and "completed_at" in step
+        and step["completed_at"] is not None
+    ):
         started_at = dateutil.parser.isoparse(step["started_at"])
         completed_at = dateutil.parser.isoparse(step["completed_at"])
         duration = int(datetime.timedelta.total_seconds(completed_at - started_at))
@@ -85,6 +95,15 @@ def step_to_stream(workflow_run, job, step, branch):
             ["{:d}000000000".format(int(completed_at.timestamp())), json.dumps(step)]
         ],
     }
+
+
+def jobs_to_stream(workflow_run, jobs, branch):
+    streams = []
+    for job in jobs["jobs"]:
+        streams.append(job_to_stream(workflow_run, job, branch))
+        for step in job["steps"]:
+            streams.append(step_to_stream(workflow_run, job, step, branch))
+    return streams
 
 
 def main(loki_endpoint, loki_username, loki_password, workflow_run_url, github_token):
@@ -113,12 +132,7 @@ def main(loki_endpoint, loki_username, loki_password, workflow_run_url, github_t
     if "pull_requests" in workflow_run and workflow_run["pull_requests"]:
         branch = workflow_run["pull_requests"][0]["base"]["ref"]
 
-    streams = []
-    for job in jobs["jobs"]:
-        streams.append(job_to_stream(workflow_run, job, branch))
-        for step in job["steps"]:
-            streams.append(step_to_stream(workflow_run, job, step, branch))
-
+    streams = jobs_to_stream(workflow_run, jobs, branch)
     streams.append(workflow_run_to_stream(workflow_run, branch))
 
     body = {"streams": streams}
