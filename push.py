@@ -6,12 +6,6 @@ import requests
 import os
 import sys
 
-LOKI_ENDPOINT = sys.argv[1]
-LOKI_USERNAME = sys.argv[2]
-LOKI_PASSWORD = sys.argv[3]
-WORKFLOW_RUN_URL = sys.argv[4]
-GITHUB_TOKEN = sys.argv[5]
-
 
 def workflow_run_to_stream(workflow_run, branch):
     run_started_at = dateutil.parser.isoparse(workflow_run["run_started_at"])
@@ -93,13 +87,13 @@ def step_to_stream(workflow_run, job, step, branch):
     }
 
 
-def main():
+def main(loki_endpoint, loki_username, loki_password, workflow_run_url, github_token):
     # Get workflow run.
     headers = {
         "Accept": "application/vnd.github+json",
-        "Authorization": "token " + GITHUB_TOKEN,
+        "Authorization": "token " + github_token,
     }
-    r = requests.get(WORKFLOW_RUN_URL, headers=headers)
+    r = requests.get(workflow_run_url, headers=headers)
     workflow_run = r.json()
     pprint.pprint(workflow_run)
 
@@ -128,11 +122,11 @@ def main():
     streams.append(workflow_run_to_stream(workflow_run, branch))
 
     body = {"streams": streams}
-    r = requests.post(LOKI_ENDPOINT, json=body, auth=(LOKI_USERNAME, LOKI_PASSWORD))
+    r = requests.post(loki_endpoint, json=body, auth=(loki_username, loki_password))
     pprint.pprint(body)
     pprint.pprint(r.status_code)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]))
