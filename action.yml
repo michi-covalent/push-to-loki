@@ -21,7 +21,7 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/michi-covalent/push-to-loki:latest'
+  image: 'docker://ghcr.io/michi-covalent/push-to-loki:v0.2.2'
   args:
     - ${{ inputs.endpoint }}
     - ${{ inputs.username }}
