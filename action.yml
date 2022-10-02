@@ -1,6 +1,6 @@
 # action.yml
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Push to Loki'
+description: 'Push GitHub Workflow run information to Loki'
 inputs:
   endpoint:
     description: 'Loki endpoint (e.g. "https://logs-prod3.grafana.net/loki/api/v1/push")'
@@ -21,7 +21,7 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'ghcr.io/michi-covalent/push-to-loki:latest'
   args:
     - ${{ inputs.endpoint }}
     - ${{ inputs.username }}

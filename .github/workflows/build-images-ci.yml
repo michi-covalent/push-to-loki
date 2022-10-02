@@ -1,0 +1,32 @@
+name: Build CI Image
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Login to registry
+        env:
+          CR_PAT: ${{ secrets.CR_PAT }}
+        run: |
+          echo $CR_PAT | docker login ghcr.io -u michi-covalent --password-stdin
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+        with:
+          context: .
+          file: Dockerfile
+          push: ${{ github.event_name == 'push' }}
+          platforms: linux/amd64
+          tags: |
+            ghcr.io/michi-covalent/push-to-loki:latest
